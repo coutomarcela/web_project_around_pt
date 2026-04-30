@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt">
   <head>
     <meta charset="UTF-8" />
@@ -38,22 +38,18 @@
           <ul class="cards__list">
             <template id="card-template">
               <li class="card">
-              <img
-                class="card__image"
-                src=""
-                alt=""
-              />
-              <button
-                aria-label="Excluir cartão"
-                class="card__delete-button"
-                type="button"
-              ></button>
-              <div class="card__description">
+                <img class="card__image" src="" alt="" />
+                <button
+                  aria-label="Excluir cartão"
+                  class="card__delete-button"
+                  type="button"
+                ></button>
+                <div class="card__description">
                   <h2 class="card__title"></h2>
                   <button
-                  aria-label="Botão de curtir"
-                  class="card__like-button"
-                  type="button"
+                    aria-label="Botão de curtir"
+                    class="card__like-button"
+                    type="button"
                   ></button>
                 </div>
               </li>
@@ -78,13 +74,31 @@
               name="name"
               placeholder="Nome"
               type="text"
+              minlength="2"
+              maxlength="40"
+              required
+              id="name"
             />
+            <span
+              class="name-input-error popup__input-error"
+              id="name-input-error"
+              >Este campo é obrigatório.</span
+            >
             <input
               class="popup__input popup__input_type_description"
               name="description"
               placeholder="Sobre mim"
               type="text"
+              minlength="2"
+              maxlength="200"
+              required
+              id="description"
             />
+            <span
+              class="description-input-error popup__input-error"
+              id="description-input-error"
+              >Este campo é obrigatório.</span
+            >
             <button class="button popup__button" type="submit">Salvar</button>
           </form>
         </div>
@@ -104,14 +118,28 @@
               placeholder="Título"
               required
               type="text"
+              minlength="2"
+              maxlength="30"
+              id="place-name"
             />
+            <span
+              class="place-name-input-error popup__input-error"
+              id="place-name-input-error"
+              >Este campo é obrigatório.</span
+            >
             <input
               class="popup__input popup__input_type_url"
               name="link"
               placeholder="Link de Imagem"
               required
               type="url"
+              id="link"
             />
+            <span
+              class="link-input-error popup__input-error"
+              id="link-input-error"
+              >Este campo é obrigatório.</span
+            >
             <button class="button popup__button" type="submit">Criar</button>
           </form>
         </div>
@@ -129,5 +157,6 @@
       </div>
     </div>
     <script src="./scripts/index.js"></script>
+    <script src="./scripts/validate.js"></script>
   </body>
 </html>
