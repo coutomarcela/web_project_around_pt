@@ -1,8 +1,9 @@
 export default class Card {
-  constructor(name, link, templateSelector) {
+  constructor(name, link, templateSelector, handleImageClick) {
     this._name = name;
     this._link = link;
     this._templateSelector = templateSelector;
+    this._handleImageClick = handleImageClick;
   }
 
   _getTemplate() {
@@ -26,6 +27,7 @@ export default class Card {
     this._deleteButton.addEventListener("click", () =>
       this._handleDeleteClick(),
     );
+    this._image.addEventListener("click", () => this._handleImageClick());
   }
 
   generateCard() {

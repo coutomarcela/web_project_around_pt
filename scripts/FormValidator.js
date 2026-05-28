@@ -47,4 +47,13 @@ export class FormValidator {
       input.addEventListener("input", () => this._inputValidator(input));
     });
   }
+
+  resetValidation() {
+    //método para resetar todas as validações dos formulários
+    this._toggleButtonState();
+    this._inputList.forEach((input) => {
+      this._hideInputError(input);
+    });
+    this._formSelector.reset();
+  }
 }
