@@ -13,6 +13,7 @@
     "description description";
   grid-template-columns: minmax(auto, 373px) auto;
   grid-gap: 7px 17px;
+  margin-left: 29px;
 }
 
 .profile__title {
@@ -37,13 +38,40 @@
   max-width: 373px;
 }
 
+.profile__image-container {
+  position: relative;
+}
+
+.profile__image-container:hover .profile__image-hover {
+  display: block;
+}
+
 .profile__image {
   width: 120px;
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
   background-position: center;
-  margin-right: 29px;
+}
+
+.profile__image-container:hover {
+}
+
+.profile__image-hover {
+  background-image: url("../images/edit-profile.png");
+  background-size: 26px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 0;
+  padding: 0;
 }
 
 .profile__add-button {

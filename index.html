@@ -18,7 +18,14 @@
       </header>
       <main class="content">
         <section class="profile page__section">
-          <img class="profile__image" src="./images/avatar.jpg" alt="Avatar" />
+          <div class="profile__image-container">
+            <img
+              class="profile__image"
+              src="./images/avatar.jpg"
+              alt="Avatar"
+            />
+            <button class="profile__image-hover"></button>
+          </div>
           <div class="profile__info">
             <h1 class="profile__title">Jacques Cousteau</h1>
             <button
@@ -60,6 +67,31 @@
       <footer class="footer page__section">
         <p class="footer__copyright">© 2025 Around The U.S.</p>
       </footer>
+      <div class="popup" id="edit-profile-avatar">
+        <div class="popup__content">
+          <button
+            aria-label="Fechar pop-up"
+            class="popup__close"
+            type="button"
+          ></button>
+          <h3 class="popup__title">Alterar a foto do perfil</h3>
+          <form class="popup__form" id="edit-avatar-form">
+            <input
+              class="popup__input popoup__input_type_url"
+              name="link"
+              placeholder="Link de Imagem"
+              required
+              type="url"
+              id="avatar"
+            />
+            <span
+              class="link-input-error popup__input-error"
+              id="avatar-input-error"
+            ></span>
+            <button class="button popup__button">Salvar</button>
+          </form>
+        </div>
+      </div>
       <div class="popup" id="edit-popup">
         <div class="popup__content">
           <button
@@ -123,8 +155,7 @@
             <span
               class="place-name-input-error popup__input-error"
               id="place-name-input-error"
-              >.</span
-            >
+            ></span>
             <input
               class="popup__input popup__input_type_url"
               name="link"
@@ -150,6 +181,22 @@
           ></button>
           <img alt="" class="popup__image" src="#" />
           <p class="popup__caption"></p>
+        </div>
+      </div>
+      <div class="popup" id="delete-popup">
+        <div class="popup__content">
+          <button
+            aria-label="Fechar pop-up"
+            class="popup__close"
+            type="button"
+          ></button>
+          <h3 class="popup__title">Tem certeza?</h3>
+          <button
+            class="button popup__button popup__confirm-button"
+            type="click"
+          >
+            Sim
+          </button>
         </div>
       </div>
     </div>

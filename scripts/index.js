@@ -4,7 +4,9 @@ import Section from "./Section.js";
 import Popup from "./Popup.js";
 import PopupWithImage from "./PopupWithImage.js";
 import PopupWithForm from "./PopupWithForm.js";
+import PopupWithConfirmation from "./PopupWithConfirmation.js";
 import UserInfo from "./UserInfo.js";
+import { api } from "./api.js";
 
 const initialCards = [
   {
@@ -53,6 +55,58 @@ const imageElement = imagePopup.querySelector(".popup__image");
 const imageCaption = imagePopup.querySelector(".popup__caption");
 const closeImagePopupButton = imagePopup.querySelector(".popup__close");
 
+//deletar card
+const deleteCardPopup = new PopupWithConfirmation(
+  "#delete-popup",
+  handleDeleteCard,
+);
+
+deleteCardPopup.setEventListeners();
+
+// isso está encadeado com getInitialCards() de api.js
+api
+  .getInitialCards()
+  .then((result) => {
+    //result = res.json()
+    //só entramos nesse then se a solicitação for ok
+    const section = new Section(
+      //se der tudo certo, criamos a seção section
+      {
+        items: result,
+        //o resultado da solicitação é passado como result (substituindo getInitialCards)
+        renderer: (card) => {
+          console.log(card);
+          //_id sempre que vier da resposta da api
+          const cardElement = renderCard(
+            card.name,
+            card.link,
+            card._id,
+            card.isLiked,
+          );
+          section.addItem(cardElement);
+        },
+      },
+      ".cards__list",
+    );
+    section.renderItems();
+  })
+
+  .catch((err) => {
+    console.log(err); // registra o erro no console
+  });
+
+//instancia da classe userinfo
+const userInfo = new UserInfo(
+  ".profile__title",
+  ".profile__description",
+  ".profile__image",
+);
+
+//acessar api para pegar os dados de perfil
+api.getUserInfo().then((result) => {
+  userInfo.setUserInfo(result.name, result.about, result.avatar);
+});
+
 // ── perfil: abrir, preencher, fechar, salvar ──────────────────────────────────
 function fillProfileForm() {
   const popupElement = document.querySelector("#edit-popup");
@@ -73,16 +127,62 @@ editProfileButton.addEventListener("click", function () {
 });
 
 function handleProfileFormSubmit(inputValues) {
-  userInfo.setUserInfo(inputValues.name, inputValues.description);
+  profileFormButton.textContent = "Salvando...";
+  api
+    .editUserInfo(inputValues.name, inputValues.description)
+    .then((res) => {
+      //atualiza no html visível
+      userInfo.setUserInfo(
+        inputValues.name,
+        inputValues.description,
+        res.avatar,
+      );
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => {
+      profileFormButton.textContent = "Salvar";
+    });
 }
 
 profileForm.addEventListener("submit", handleProfileFormSubmit);
 
 // ── cards ─────────────────────────────────────────────────────────────────────
-function renderCard(name, link) {
+//cria um objeto Card, gera o HTML e adiciona o HTML na página
+function renderCard(name, link, id, isLiked) {
   const cardContainer = document.querySelector(".cards__list");
-  const newCard = new Card(name, link, "#card-template", () =>
-    handleImagePopup(name, link),
+  const newCard = new Card(
+    name,
+    link,
+    "#card-template",
+    () => handleImagePopup(name, link),
+    isLiked,
+    () => {
+      //addLike é um método que existe na classe Api, api é uma instância e consegue acessar todos os métodos da classe mãe
+      console.log(isLiked);
+      if (!isLiked) {
+        api
+          .addLike(id)
+          //se o like for um sucesso, then...
+          .then(() => {
+            newCard.toggleLike();
+            newCard.updateLikesView();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        api.removeLike(id).then(() => {
+          newCard.toggleLike();
+          newCard.updateLikesView();
+        });
+      }
+    },
+    () => {
+      deleteCardPopup.open(newCard);
+    },
+    id,
   );
   const cardElement = newCard.generateCard();
   cardContainer.prepend(cardElement);
@@ -95,8 +195,42 @@ addButton.addEventListener("click", function () {
 });
 
 function handleCardFormSubmit(inputValues) {
-  renderCard(inputValues["place-name"], inputValues.link);
-  // closeModal(newCardPopup);
+  //salvar o cartão na api
+  //só entra no .then se a requisição for um sucesso
+  //só se for um sucesso fazemos ficar visível no html (chama renderCard)
+  profileFormButton.textContent = "Salvando...";
+  api
+    .addCard(inputValues["place-name"], inputValues.link)
+    .then((res) => {
+      renderCard(
+        inputValues["place-name"],
+        inputValues.link,
+        res._id,
+        res.isLiked,
+      );
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => {
+      profileFormButton.textContent = "Salvar";
+    });
+}
+
+// ── excluir card  ─────────────────────────────────────────
+
+function handleDeleteCard(card) {
+  api
+    //chama o deleteCard que pinga na Api
+    .deleteCard(card.getId())
+    //se deleteCard for um sucesso, then...
+    .then(() => {
+      card.removeCard();
+      deleteCardPopup.close();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 }
 
 // ── validação ─────────────────────────────────────────────────────────────────
@@ -138,17 +272,39 @@ function handleImagePopup(name, link) {
   popupWithImage.open(name, link);
 }
 
-const userInfo = new UserInfo(".profile__title", ".profile__description");
+// ── editar avatar ────────────────────────────────────────────────────────────
+//passo a passo:
+//1.variável para o botão de editar
+const editAvatarButton = document.querySelector(".profile__image-hover");
 
-const section = new Section(
-  {
-    items: initialCards,
-    renderer: (card) => {
-      const cardElement = renderCard(card.name, card.link);
-      section.addItem(cardElement);
-    },
-  },
-  ".cards__list",
+//4.função que faz o submit do form do avatar através de conexão com api (métodos declarados em api.js)
+function handleAvatarFormSubmit(inputValues) {
+  profileFormButton.textContent = "Salvando...";
+  api
+    .editProfileAvatar(inputValues.link)
+    .then((res) => {
+      //atualiza no html visível
+      userInfo.setUserInfo(res.name, res.about, res.avatar);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => {
+      profileFormButton.textContent = "Salvar";
+    });
+}
+
+//3.criar uma instância de popupWithForm (precisa receber um id e uma função)
+
+const editAvatarPopup = new PopupWithForm(
+  "#edit-profile-avatar",
+  handleAvatarFormSubmit,
 );
 
-section.renderItems();
+//chamar o método declarado na clase
+editAvatarPopup.setEventListeners();
+
+//2.evento de clique no botão que abre o popup
+editAvatarButton.addEventListener("click", () => {
+  editAvatarPopup.open();
+});

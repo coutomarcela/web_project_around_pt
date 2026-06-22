@@ -1,9 +1,22 @@
 export default class Card {
-  constructor(name, link, templateSelector, handleImageClick) {
+  constructor(
+    name,
+    link,
+    templateSelector,
+    handleImageClick,
+    isLiked,
+    handleLikeClick,
+    handleDeleteClick,
+    id,
+  ) {
     this._name = name;
     this._link = link;
     this._templateSelector = templateSelector;
     this._handleImageClick = handleImageClick;
+    this._isLiked = isLiked;
+    this._handleLikeClick = handleLikeClick;
+    this._handleDeleteClick = handleDeleteClick;
+    this._id = id;
   }
 
   _getTemplate() {
@@ -13,12 +26,13 @@ export default class Card {
       .cloneNode(true);
   }
 
-  _handleLikeClick() {
-    this._likeButton.classList.toggle("card__like-button_is-active");
-  }
-
-  _handleDeleteClick() {
-    this._element.remove();
+  //só vai ser chamada se a api retornar um sucesso, caso não retorne ela não executa
+  updateLikesView() {
+    if (this._isLiked === true) {
+      this._likeButton.classList.add("card__like-button_is-active");
+    } else {
+      this._likeButton.classList.remove("card__like-button_is-active");
+    }
   }
 
   _setEventListeners() {
@@ -43,7 +57,22 @@ export default class Card {
     this._image.alt = this._name;
 
     this._setEventListeners();
+    this.updateLikesView();
 
     return this._element;
+  }
+
+  toggleLike() {
+    this._isLiked = !this._isLiked;
+  }
+
+  removeCard() {
+    this._element.remove();
+    this._element = null;
+  }
+
+  //serve para que outras partes do código acessem esse id
+  getId() {
+    return this._id;
   }
 }
