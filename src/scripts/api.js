@@ -29,7 +29,7 @@ class Api {
 
   //editar as informações do usuário
   async editUserInfo(name, about) {
-    const rawData = await fetch(`${this._url}/users/me`, {
+    const res = await fetch(`${this._url}/users/me`, {
       method: "PATCH",
       headers: this._headers,
       body: JSON.stringify({
@@ -37,7 +37,10 @@ class Api {
         about: about,
       }),
     });
-    return rawData.json();
+    if (res.ok) {
+      return rawData.json();
+    }
+    return Promise.reject(`Error: ${res.status}`);
   }
 
   //envia o cartão para o servidor, o servidor cria o cartão e devolve os dados do cartão criado. NÃO ADICIONA O CARTÃO NO HTML VISÍVEL
